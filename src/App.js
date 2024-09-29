@@ -485,193 +485,186 @@ function App() {
     doc.setFont('helvetica', 'normal');
   };
 
-  // Generar el PDF del resumen
   // Función para generar el PDF del resumen
-// Función para generar el PDF del resumen
-// Función para guardar la evaluación en un archivo JSON
-const saveEvaluationToFile = () => {
-  const address = generalInfo['Property Address'] || 'Unknown_Address';
-  const evaluation = {
-    generalInfo,
-    evaluationData
-  };
-  const jsonData = JSON.stringify(evaluation, null, 2);
-  const fileName = `${address.replace(/\s+/g, '_')}_evaluation.json`;
-  const blob = new Blob([jsonData], { type: "application/json" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = fileName;
-  link.click();
-};
+  const generatePDF = () => {
+    const doc = new jsPDF();
+    const titleFontSize = 16;
+    const sectionFontSize = 14;
+    const normalFontSize = 12;
+    const lineHeight = 8;
+    const maxWidth = 180;
+    let yOffset = 20;
 
-
-
-const generatePDF = () => {
-  const doc = new jsPDF();
-  const titleFontSize = 16;
-  const sectionFontSize = 14;
-  const normalFontSize = 12;
-  const lineHeight = 8;
-  const maxWidth = 180;
-  let yOffset = 20;
-
-  // Encabezado del PDF
-  doc.setFontSize(titleFontSize);
-  doc.setFont('helvetica', 'bold');
-  doc.text(`Home Assessment Toolkit Summary`, 105, yOffset, { align: 'center' });
-  yOffset += lineHeight * 2;
-
-  // Añadir información general del proyecto en el encabezado
-  doc.setFontSize(normalFontSize);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`Project: ${generalInfo['Project Manager'] || 'N/A'}`, 10, yOffset);
-  doc.text(`Date: ${generalInfo['Date Of Assessment'] || 'N/A'}`, 150, yOffset);
-  yOffset += lineHeight * 2;
-
-  // Definir el orden de los campos para el resumen del toolkit
-  const toolkitSummaryOrder = [
-    'Property Address',
-    'Homeowner Name',
-    'Pets In Home',
-    'Date Of Assessment',
-    'Project Manager',
-    'People In House',
-    'Content Level',
-    'Assessment By',
-    'Mobility Devices',
-    'Medical Equipment',
-    'Roof',
-    'Main Entry',
-    'Exterior Doors',
-    'Handrails',
-    'Porch/Step/Walkway Repair',
-    'Foundation',
-    'Exterior Lighting',
-    'Pest Treatment',
-    'Misc. Exterior Work',
-    'Senior Bathroom',
-    'Bathroom 2',
-    'Bathroom 3',
-    'Senior Bedroom',
-    'Kitchen',
-    'CO & Smoke Detector',
-    'Living Room',
-    'Dining Room',
-    'Hallway 1',
-    'Hallway 2',
-    'Hallway 3',
-    'Bedroom 2',
-    'Bedroom 3',
-    'Bedroom 4',
-    'Bedroom 5',
-    'Misc. Interior',
-    'HVAC',
-    'Water Heater',
-    'Attic',
-    'General Plumbing',
-    'Electrical In General',
-    'Total Windows',
-    'Total Windows repair',
-    'Misc. Energy Efficiency'
-  ];
-
-  // Añadir contenido de cada campo
-  toolkitSummaryOrder.forEach((field) => {
-    if (yOffset > 280) { 
-      doc.addPage();
-      yOffset = 20;
-    }
-
-    // Título de la sección
-    doc.setFontSize(sectionFontSize);
+    // Encabezado del PDF
+    doc.setFontSize(titleFontSize);
     doc.setFont('helvetica', 'bold');
-    doc.text(field, 10, yOffset);
-    yOffset += lineHeight;
+    doc.text(`Home Assessment Toolkit Summary`, 105, yOffset, { align: 'center' });
+    yOffset += lineHeight * 2;
 
-    // Línea divisoria
-    doc.setDrawColor(0, 0, 0); // Negro
-    doc.setLineWidth(0.5);
-    doc.line(10, yOffset, 200, yOffset);
-    yOffset += lineHeight;
+    // Añadir información general del proyecto en el encabezado
+    doc.setFontSize(normalFontSize);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Project: ${generalInfo['Project Manager'] || 'N/A'}`, 10, yOffset);
+    doc.text(`Date: ${generalInfo['Date Of Assessment'] || 'N/A'}`, 150, yOffset);
+    yOffset += lineHeight * 2;
 
-    // Contenido de la sección
-    if (field in evaluationData) {
-      subMenus[field]?.forEach((subArea) => {
-        if (yOffset > 280) { 
-          doc.addPage();
-          yOffset = 20;
-        }
+    // Definir el orden de los campos para el resumen del toolkit
+    const toolkitSummaryOrder = [
+      'Property Address',
+      'Homeowner Name',
+      'Pets In Home',
+      'Date Of Assessment',
+      'Project Manager',
+      'People In House',
+      'Content Level',
+      'Assessment By',
+      'Mobility Devices',
+      'Medical Equipment',
+      'Roof',
+      'Main Entry',
+      'Exterior Doors',
+      'Handrails',
+      'Porch/Step/Walkway Repair',
+      'Foundation',
+      'Exterior Lighting',
+      'Pest Treatment',
+      'Misc. Exterior Work',
+      'Senior Bathroom',
+      'Bathroom 2',
+      'Bathroom 3',
+      'Senior Bedroom',
+      'Kitchen',
+      'CO & Smoke Detector',
+      'Living Room',
+      'Dining Room',
+      'Hallway 1',
+      'Hallway 2',
+      'Hallway 3',
+      'Bedroom 2',
+      'Bedroom 3',
+      'Bedroom 4',
+      'Bedroom 5',
+      'Misc. Interior',
+      'HVAC',
+      'Water Heater',
+      'Attic',
+      'General Plumbing',
+      'Electrical In General',
+      'Total Windows',
+      'Total Windows repair',
+      'Misc. Energy Efficiency'
+    ];
 
-        // Subtítulo de subárea
-        doc.setFontSize(normalFontSize);
-        doc.setFont('helvetica', 'bold');
-        doc.text(`${subArea}:`, 20, yOffset);
-        yOffset += lineHeight;
+    // Añadir contenido de cada campo
+    toolkitSummaryOrder.forEach((field) => {
+      if (yOffset > 280) { 
+        doc.addPage();
+        yOffset = 20;
+      }
 
-        // Opciones seleccionadas de la subárea
-        const options = subMenuOptions[field]?.[subArea] || subMenuOptions[subArea];
-        options?.forEach((option) => {
-          if (evaluationData[field]?.[subArea]?.[option]) {
-            if (yOffset > 280) { 
-              doc.addPage();
-              yOffset = 20;
-            }
-            const optionText = `${option}`;
-            doc.setFont('helvetica', 'normal');
-            doc.text(optionText, 30, yOffset);
-            const textWidth = doc.getTextWidth(optionText);
-            drawCheckbox(doc, 30 + textWidth + 2, yOffset);
-            yOffset += lineHeight;
-          }
-        });
+      // Título de la sección
+      doc.setFontSize(sectionFontSize);
+      doc.setFont('helvetica', 'bold');
+      doc.text(field, 10, yOffset);
+      yOffset += lineHeight;
 
-        // Notas de la subárea
-        if (evaluationData[field]?.[subArea]?.[`${subArea} Notes`]) {
+      // Línea divisoria
+      doc.setDrawColor(0, 0, 0); // Negro
+      doc.setLineWidth(0.5);
+      doc.line(10, yOffset, 200, yOffset);
+      yOffset += lineHeight;
+
+      // Contenido de la sección
+      if (field in evaluationData) {
+        subMenus[field]?.forEach((subArea) => {
           if (yOffset > 280) { 
             doc.addPage();
             yOffset = 20;
           }
-          const notesText = `${subArea} Notes: ${evaluationData[field][subArea][`${subArea} Notes`]}`;
-          const splitNotesText = doc.splitTextToSize(notesText, maxWidth);
-          doc.setFont('helvetica', 'italic');
-          splitNotesText.forEach((line) => {
-            doc.text(line, 30, yOffset);
-            yOffset += lineHeight;
+
+          // Subtítulo de subárea
+          doc.setFontSize(normalFontSize);
+          doc.setFont('helvetica', 'bold');
+          doc.text(`${subArea}:`, 20, yOffset);
+          yOffset += lineHeight;
+
+          // Opciones seleccionadas de la subárea
+          const options = subMenuOptions[field]?.[subArea] || subMenuOptions[subArea];
+          options?.forEach((option) => {
+            if (evaluationData[field]?.[subArea]?.[option]) {
+              if (yOffset > 280) { 
+                doc.addPage();
+                yOffset = 20;
+              }
+              const optionText = `${option}`;
+              doc.setFont('helvetica', 'normal');
+              doc.text(optionText, 30, yOffset);
+              const textWidth = doc.getTextWidth(optionText);
+              drawCheckbox(doc, 30 + textWidth + 2, yOffset);
+              yOffset += lineHeight;
+            }
           });
-        }
-      });
-    } else if (generalInfo[field]) {
-      const text = `${field}: ${generalInfo[field] || ''}`;
-      const splitText = doc.splitTextToSize(text, maxWidth);
-      doc.setFont('helvetica', 'normal');
-      splitText.forEach((line) => {
-        doc.text(line, 10, yOffset);
-        yOffset += lineHeight;
-      });
+
+          // Notas de la subárea
+          if (evaluationData[field]?.[subArea]?.[`${subArea} Notes`]) {
+            if (yOffset > 280) { 
+              doc.addPage();
+              yOffset = 20;
+            }
+            const notesText = `${subArea} Notes: ${evaluationData[field][subArea][`${subArea} Notes`]}`;
+            const splitNotesText = doc.splitTextToSize(notesText, maxWidth);
+            doc.setFont('helvetica', 'italic');
+            splitNotesText.forEach((line) => {
+              doc.text(line, 30, yOffset);
+              yOffset += lineHeight;
+            });
+          }
+        });
+      } else if (generalInfo[field]) {
+        const text = `${field}: ${generalInfo[field] || ''}`;
+        const splitText = doc.splitTextToSize(text, maxWidth);
+        doc.setFont('helvetica', 'normal');
+        splitText.forEach((line) => {
+          doc.text(line, 10, yOffset);
+          yOffset += lineHeight;
+        });
+      }
+
+      // Espacio entre secciones
+      yOffset += lineHeight;
+    });
+
+    // Pie de página con número de página
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(10);
+      doc.text(`Page ${i} of ${pageCount}`, 200, 290, { align: 'right' });
     }
 
-    // Espacio entre secciones
-    yOffset += lineHeight;
-  });
+    // Definir el nombre del archivo
+    const address = generalInfo['Property Address'] || 'Unknown_Address';
+    const fileName = `${address.replace(/\s+/g, '_')}_Toolkit_Summary.pdf`;
 
-  // Pie de página con número de página
-  const pageCount = doc.internal.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i);
-    doc.setFontSize(10);
-    doc.text(`Page ${i} of ${pageCount}`, 200, 290, { align: 'right' });
-  }
+    // Guardar el PDF automáticamente
+    doc.save(fileName);
+  };
 
-  // Definir el nombre del archivo
-  const address = generalInfo['Property Address'] || 'Unknown_Address';
-  const fileName = `${address.replace(/\s+/g, '_')}_Toolkit_Summary.pdf`;
-
-  // Guardar el PDF
-  doc.save(fileName);
-};
-
-
-
+  // Función para guardar la evaluación en un archivo JSON
+  const saveEvaluationToFile = () => {
+    const address = generalInfo['Property Address'] || 'Unknown_Address';
+    const evaluation = {
+      generalInfo,
+      evaluationData
+    };
+    const jsonData = JSON.stringify(evaluation, null, 2);
+    const fileName = `${address.replace(/\s+/g, '_')}_evaluation.json`;
+    const blob = new Blob([jsonData], { type: "application/json" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    link.click();
+  };
 
   // Renderizar el resumen
   const renderSummary = () => {
@@ -806,12 +799,13 @@ const handleClearData = () => {
                 <h4>{selectedSubArea}</h4>
                 <div>
                   {(subMenuOptions[selectedArea]?.[selectedSubArea] || subMenuOptions[selectedSubArea] || []).map(option => (
-                    <div key={option} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                    <div key={option} style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
                       <label style={{ marginRight: '8px' }}>{option}</label>
                       {option === `${selectedSubArea} Notes` ? (
                         <textarea
                           value={evaluationData[selectedArea]?.[selectedSubArea]?.[option] || ''}
                           onChange={(e) => handleTextChange(selectedArea, selectedSubArea, e.target.value)}
+                          style={{ width: '100%', marginRight: '10px' }}
                         />
                       ) : (
                         <input
@@ -822,7 +816,7 @@ const handleClearData = () => {
                       )}
                       <button
                         onClick={() => handlePhotoCapture(selectedArea, selectedSubArea, option)}
-                        style={{ marginLeft: '8px' }}
+                        style={{ marginLeft: '8px', padding: '10px 20px' }}
                       >
                         📷
                       </button>
@@ -837,12 +831,9 @@ const handleClearData = () => {
 
       <div>
         {renderSummary()}
-        <button onClick={saveEvaluationToFile}>Save Evaluation Data</button>
-
-        
-        
-        <button onClick={() => generatePDF('Toolkit')}>Generate Toolkit PDF</button>
-        <button onClick={handleClearData}>Clear Data</button>
+        <button onClick={saveEvaluationToFile} style={{ margin: '40px', padding: '10px 20px' }}>Save Evaluation Data</button>
+        <button onClick={generatePDF} style={{ margin: '40px', padding: '10px 20px' }}>Generate PDF</button>
+        <button onClick={handleClearData} style={{ margin: '40px', padding: '10px 20px' }}>Clear Data</button>
       </div>
     </div>
   );
